@@ -28,6 +28,23 @@ async function main() {
 
   console.log('✅ Password Island module created')
 
+  // Create Module 2: Phishing Forest
+  const phishingForest = await prisma.module.upsert({
+    where: { slug: 'phishing-forest' },
+    update: {},
+    create: {
+      slug: 'phishing-forest',
+      title: '🌲 Phishing Forest',
+      description: 'Learn to detect malicious links and identify safe vs suspicious URLs by observing patterns and hidden tricks.',
+      order: 2,
+      xpReward: 420,
+      icon: '🌲',
+      isPublished: true,
+    },
+  })
+
+  console.log('✅ Phishing Forest module created')
+
   // Create Badges
   const badges = [
     {
@@ -69,6 +86,14 @@ async function main() {
       icon: '🔥',
       category: 'STREAK' as const,
       rarity: 'EPIC' as const,
+    },
+    {
+      slug: 'link-decoder',
+      name: 'Link Decoder',
+      description: 'You now see what lies beneath every link!',
+      icon: '🔗',
+      category: 'MODULE_COMPLETION' as const,
+      rarity: 'COMMON' as const,
     },
   ]
 
@@ -337,6 +362,161 @@ async function main() {
   }
 
   console.log('✅ Password Island - Submodule 1 scenarios created')
+
+  // Create Scenarios for Phishing Forest - Submodule 1: Link Decoder
+  const phishingForestScenarios = [
+    // Scenario 1: The Hover Test
+    {
+      moduleId: phishingForest.id,
+      title: '🔍 The Hover Test',
+      description: 'Learn to preview links before clicking',
+      order: 1,
+      type: 'INTERACTIVE' as const,
+      content: {
+        scenario: 1,
+        theme: 'The Hover Test',
+        situation: 'Before clicking, hover (or long-press) to preview the real link destination.',
+        message: 'Congrats! You\'ve won an iPhone 15! Claim your prize now:',
+        realLink: 'http://fake-apple.gifts.ru/login.php',
+        task: 'Question: What do you do?',
+        options: [
+          { text: 'Click and claim the gift', isCorrect: false, explanation: 'Never click suspicious links!' },
+          { text: 'Report and delete', isCorrect: true, explanation: 'Correct! Always verify before clicking.' },
+          { text: 'Forward to friends', isCorrect: false, explanation: 'Don\'t spread potential threats!' },
+          { text: 'Bookmark it for later', isCorrect: false, explanation: 'This is still unsafe!' },
+        ],
+        tip: 'Good! Always hover before clicking — the real URL never lies.',
+        xpReward: 50,
+      },
+    },
+    // Scenario 2: Link Match Challenge
+    {
+      moduleId: phishingForest.id,
+      title: '🔗 Link Match Challenge',
+      description: 'Identify safe and suspicious URLs',
+      order: 2,
+      type: 'INTERACTIVE' as const,
+      content: {
+        scenario: 2,
+        theme: 'Link Match Challenge',
+        task: 'You see these links — mark which are safe or suspicious 👇',
+        links: [
+          { url: 'https://accounts.google.com/security', isSafe: true, reason: 'Official Google domain' },
+          { url: 'http://google.security-login.net', isSafe: false, reason: 'Extra words after real name' },
+          { url: 'https://www.sbi.co.in/securebanking', isSafe: true, reason: 'Verified .co.in domain' },
+          { url: 'https://sbi-login-support.cc', isSafe: false, reason: 'Fake "support" site' },
+          { url: 'https://paypal.com.verify-account.org', isSafe: false, reason: 'Misleading subdomain' },
+        ],
+        tip: 'Always read domains right-to-left — real domain sits just before .com or .in.',
+        xpReward: 80,
+      },
+    },
+    // Scenario 3: Sneaky Short Links
+    {
+      moduleId: phishingForest.id,
+      title: '⚠️ Sneaky Short Links',
+      description: 'Learn to handle shortened URLs safely',
+      order: 3,
+      type: 'INTERACTIVE' as const,
+      content: {
+        scenario: 3,
+        theme: 'Sneaky Short Links',
+        situation: 'You receive a WhatsApp message:',
+        message: 'Your courier is pending. Track here 👉 bit.ly/xyzTrackNow',
+        task: 'What\'s your first move?',
+        options: [
+          { text: 'Click directly', isCorrect: false, explanation: 'Never click shortened links blindly!' },
+          { text: 'Expand short link using a URL checker', isCorrect: true, explanation: 'Perfect! Always preview shortened URLs.' },
+          { text: 'Forward to courier service', isCorrect: false, explanation: 'Don\'t forward suspicious links!' },
+          { text: 'Ignore', isCorrect: false, explanation: 'Better to verify and report if it\'s a scam.' },
+        ],
+        tip: 'Correct! Use sites like checkshorturl.com to preview shortened links.',
+        xpReward: 40,
+      },
+    },
+    // Scenario 4: Final Quiz - Decode the Web
+    {
+      moduleId: phishingForest.id,
+      title: '🎯 Final Quiz - Decode the Web',
+      description: 'Test your phishing detection skills',
+      order: 4,
+      type: 'ASSESSMENT' as const,
+      content: {
+        title: 'Decode the Web',
+        questions: [
+          {
+            question: 'Which domain is real?',
+            options: [
+              'google.support-login.net',
+              'accounts.google.com',
+              'google.loginapp.org',
+              'googlefree.com',
+            ],
+            correctAnswer: 1,
+            explanation: 'The real Google domain is accounts.google.com. The others add extra words or use suspicious TLDs.',
+          },
+          {
+            question: 'What\'s the first step before clicking a link?',
+            options: [
+              'Hover to preview',
+              'Trust your instinct',
+              'Screenshot it',
+              'Click immediately',
+            ],
+            correctAnswer: 0,
+            explanation: 'Hovering reveals the real destination URL before you click, helping you avoid phishing sites.',
+          },
+          {
+            question: 'Which domain is suspicious?',
+            options: [
+              'https://paytm.com/secure',
+              'https://secure-paytm-payment.cc',
+              'https://www.paytm.in',
+              'https://paytm.com/settings',
+            ],
+            correctAnswer: 1,
+            explanation: '".cc" domains and extra hyphens often indicate fake sites. Real Paytm uses .com or .in.',
+          },
+          {
+            question: 'Why are shortened links risky?',
+            options: [
+              'Hide full destination',
+              'Faster loading',
+              'Look cleaner',
+              'Safer to use',
+            ],
+            correctAnswer: 0,
+            explanation: 'Shortened links (like bit.ly) hide the real URL, making it easy for attackers to disguise malicious sites.',
+          },
+          {
+            question: 'What\'s a good defense against link scams?',
+            options: [
+              'Use URL preview tools',
+              'Disable browser',
+              'Click from messages',
+              'Guess if safe',
+            ],
+            correctAnswer: 0,
+            explanation: 'URL preview tools and link checkers help you see the real destination before clicking.',
+          },
+        ],
+        totalXP: 250,
+        badge: {
+          name: 'Link Decoder',
+          icon: '🔗',
+          description: 'You now see what lies beneath every link!',
+        },
+      },
+    },
+  ]
+
+  for (const scenario of phishingForestScenarios) {
+    await prisma.scenario.create({
+      data: scenario,
+    })
+  }
+
+  console.log('✅ Phishing Forest - Submodule 1 scenarios created')
   console.log('🎉 Database seeded successfully!')
 }
 

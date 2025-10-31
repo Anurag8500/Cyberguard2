@@ -7,6 +7,8 @@ import Navbar from '@/components/Navbar'
 import Confetti from 'react-confetti'
 import PasswordChallenge from '@/components/scenarios/PasswordChallenge'
 import PasswordLab from '@/components/scenarios/PasswordLab'
+import LinkDecoder from '@/components/scenarios/LinkDecoder'
+import PhishingQuiz from '@/components/scenarios/PhishingQuiz'
 
 interface ModuleDetailProps {
   user: any
@@ -274,6 +276,11 @@ export default function ModuleDetail({ user, setUser, logout }: ModuleDetailProp
                     <PasswordChallenge content={currentScenario.content} />
                   )}
                   
+                  {/* LinkDecoder scenarios (Phishing Forest) */}
+                  {currentScenario.content.scenario && (
+                    <LinkDecoder content={currentScenario.content} />
+                  )}
+                  
                   {currentScenario.content.type === 'password_analysis' && (
                     <div className="space-y-4">
                       {currentScenario.content.passwords.map((pwd: any, i: number) => (
@@ -377,6 +384,11 @@ export default function ModuleDetail({ user, setUser, logout }: ModuleDetailProp
               {/* Assessment Type */}
               {currentScenario.type === 'ASSESSMENT' && (
                 <div className="space-y-6">
+                  {/* PhishingQuiz component for Phishing Forest */}
+                  {currentScenario.content.title === 'Decode the Web' ? (
+                    <PhishingQuiz content={currentScenario.content} />
+                  ) : (
+                    <>
                   {/* Quiz Header for Password Island */}
                   {currentScenario.content.theme && (
                     <div className="bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 text-white rounded-2xl p-8 text-center shadow-2xl relative overflow-hidden">
@@ -513,6 +525,8 @@ export default function ModuleDetail({ user, setUser, logout }: ModuleDetailProp
                         Submit Assessment
                       </span>
                     </motion.button>
+                  )}
+                    </>
                   )}
                 </div>
               )}

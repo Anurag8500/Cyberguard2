@@ -28,6 +28,7 @@ export default function ModuleDetail({ user, setUser, logout }: ModuleDetailProp
   const [score, setScore] = useState(0)
   const [showScoreConfetti, setShowScoreConfetti] = useState(false)
   const [showScorePopup, setShowScorePopup] = useState(false)
+  const [xpAlreadyEarned, setXpAlreadyEarned] = useState(false)
 
   useEffect(() => {
     if (!slug) return
@@ -177,6 +178,11 @@ export default function ModuleDetail({ user, setUser, logout }: ModuleDetailProp
         if (data.user) {
           localStorage.setItem('user', JSON.stringify(data.user))
           setUser(data.user)
+        }
+        
+        // Track if badge XP was already earned
+        if (data.badgeXpAlreadyEarned) {
+          setXpAlreadyEarned(true)
         }
       }
     } catch (error) {
@@ -449,6 +455,7 @@ export default function ModuleDetail({ user, setUser, logout }: ModuleDetailProp
                       onAnswerSelect={handleAnswerSelect}
                       showResults={showResults}
                       onSubmit={handleSubmitAssessment}
+                      xpAlreadyEarned={xpAlreadyEarned}
                     />
                   ) : (
                     <>
@@ -647,7 +654,7 @@ export default function ModuleDetail({ user, setUser, logout }: ModuleDetailProp
                     })
                     const percentage = Math.round((correct / questions.length) * 100)
                     
-                    if (percentage >= 80) {
+                    if (percentage === 100) {
                       return (
                         <motion.div
                           initial={{ opacity: 0, y: 20 }}
@@ -663,11 +670,24 @@ export default function ModuleDetail({ user, setUser, logout }: ModuleDetailProp
                           >
                             {currentScenario.content.badge.icon}
                           </motion.div>
-                          <h3 className="text-3xl font-bold mb-2">Badge Earned!</h3>
+                          <h3 className="text-3xl font-bold mb-2">
+                            {xpAlreadyEarned ? 'Badge Already Earned!' : 'Badge Earned!'}
+                          </h3>
                           <p className="text-2xl font-semibold mb-2">{currentScenario.content.badge.name}</p>
                           <p className="text-purple-100 text-lg">{currentScenario.content.badge.description}</p>
                           <div className="mt-4 pt-4 border-t border-purple-400">
-                            <p className="text-xl font-semibold">⭐ XP +{currentScenario.content.badge.xp}</p>
+                            <p className="text-xl font-semibold">
+                              {xpAlreadyEarned ? (
+                                <>✓ XP Already Awarded (200 XP)</>
+                              ) : (
+                                <>⭐ XP +200</>
+                              )}
+                            </p>
+                            {xpAlreadyEarned && (
+                              <p className="text-sm text-purple-200 mt-2">
+                                Badges are only awarded once per module
+                              </p>
+                            )}
                           </div>
                         </motion.div>
                       )

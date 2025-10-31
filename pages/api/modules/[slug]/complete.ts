@@ -43,9 +43,13 @@ export default async function handler(
       },
     })
 
-    // Check if user qualifies for XP (score >= 80% and hasn't received it before)
-    const qualifiesForXP = score >= 80
-    const shouldAwardXP = qualifiesForXP && (!existingProgress || !existingProgress.xpAwarded)
+    // Check if user qualifies for module completion XP (score >= 80% and hasn't received it before)
+    const qualifiesForModuleXP = score >= 80
+    const shouldAwardModuleXP = qualifiesForModuleXP && (!existingProgress || !existingProgress.moduleCompletionXpAwarded)
+    
+    // Check if user qualifies for badge XP (score === 100% and hasn't received it before)
+    const qualifiesForBadgeXP = score === 100
+    const shouldAwardBadgeXP = qualifiesForBadgeXP && (!existingProgress || !existingProgress.xpAwarded)
     
     // Update or create module progress
     const progress = await prisma.moduleProgress.upsert({
@@ -63,7 +67,8 @@ export default async function handler(
         attempts: {
           increment: 1,
         },
-        xpAwarded: qualifiesForXP ? true : (existingProgress?.xpAwarded || false),
+        moduleCompletionXpAwarded: qualifiesForModuleXP ? true : (existingProgress?.moduleCompletionXpAwarded || false),
+        xpAwarded: qualifiesForBadgeXP ? true : (existingProgress?.xpAwarded || false),
         savedAnswers: null, // Clear saved answers after completion
       },
       create: {
@@ -74,17 +79,22 @@ export default async function handler(
         timeSpent,
         completedAt: new Date(),
         attempts: 1,
-        xpAwarded: qualifiesForXP,
+        moduleCompletionXpAwarded: qualifiesForModuleXP,
+        xpAwarded: qualifiesForBadgeXP,
         savedAnswers: null,
       },
     })
 
-    // Award XP to user only if they qualify and haven't received it before
-    const xpToAward = shouldAwardXP ? 250 : 0
+    // Award XP to user
+    // Module completion XP: 250 for score >= 80%
+    // Badge XP: 200 for score = 100%
+    const moduleCompletionXp = shouldAwardModuleXP ? 250 : 0
+    const badgeXp = shouldAwardBadgeXP ? 200 : 0
+    const totalXpToAward = moduleCompletionXp + badgeXp
     let updatedUser = user
     
-    if (xpToAward > 0) {
-      const newXp = user.xp + xpToAward
+    if (totalXpToAward > 0) {
+      const newXp = user.xp + totalXpToAward
       const newLevel = Math.floor(newXp / 500) + 1
 
       updatedUser = await prisma.user.update({
@@ -117,8 +127,8 @@ export default async function handler(
       }
     }
 
-    // Module-specific badge (only if score >= 80%)
-    if (score >= 80) {
+    // Module-specific badge (only if score === 100% and hasn't been awarded before)
+    if (score === 100 && shouldAwardBadgeXP) {
       const moduleBadgeSlug =
         module.slug === 'password-island'
           ? 'password-apprentice'
@@ -183,6 +193,18 @@ export default async function handler(
       }
 
       if (progressValue > 0) {
+        // Check if achievement already completed
+        const existingAchievement = await prisma.userAchievement.findUnique({
+          where: {
+            userId_achievementId: {
+              userId: user.id,
+              achievementId: achievement.id,
+            },
+          },
+        })
+        
+        const wasAlreadyCompleted = existingAchievement?.completed || false
+        
         await prisma.userAchievement.upsert({
           where: {
             userId_achievementId: {
@@ -193,7 +215,7 @@ export default async function handler(
           update: {
             progress: Math.min(progressValue, 100),
             completed: shouldAward,
-            completedAt: shouldAward ? new Date() : undefined,
+            completedAt: shouldAward && !wasAlreadyCompleted ? new Date() : existingAchievement?.completedAt,
           },
           create: {
             userId: user.id,
@@ -204,9 +226,9 @@ export default async function handler(
           },
         })
 
-        // Award achievement XP
-        if (shouldAward) {
-          await prisma.user.update({
+        // Award achievement XP only if newly completed (not already completed)
+        if (shouldAward && !wasAlreadyCompleted) {
+          updatedUser = await prisma.user.update({
             where: { id: user.id },
             data: {
               xp: { increment: achievement.xpReward },
@@ -216,17 +238,21 @@ export default async function handler(
       }
     }
 
+    // Fetch final user data to ensure accurate XP/level in response
+    const finalUser = await prisma.user.findUnique({
+      where: { id: user.id },
+    })
+
     return res.status(200).json({
       message: 'Module completed successfully',
       progress,
-      user: {
-        ...updatedUser,
-        xp: updatedUser.xp,
-        level: updatedUser.level,
-      },
+      user: finalUser || updatedUser,
       badgesAwarded: badgesToAward.length,
-      xpAwarded: xpToAward,
-      xpAlreadyEarned: existingProgress?.xpAwarded && !shouldAwardXP,
+      moduleCompletionXpAwarded: moduleCompletionXp,
+      badgeXpAwarded: badgeXp,
+      totalXpAwarded: totalXpToAward,
+      badgeXpAlreadyEarned: existingProgress?.xpAwarded && !shouldAwardBadgeXP,
+      moduleCompletionXpAlreadyEarned: existingProgress?.moduleCompletionXpAwarded && !shouldAwardModuleXP,
     })
   } catch (error) {
     console.error('Module completion error:', error)

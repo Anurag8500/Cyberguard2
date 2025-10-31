@@ -278,7 +278,7 @@ async function main() {
         badge: {
           name: 'Password Apprentice',
           icon: '🎓',
-          xp: 100,
+          xp: 200,
         },
         questions: [
           {
@@ -505,6 +505,7 @@ async function main() {
           name: 'Link Decoder',
           icon: '🔗',
           description: 'You now see what lies beneath every link!',
+          xp: 200,
         },
       },
     },

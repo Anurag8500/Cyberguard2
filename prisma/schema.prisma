@@ -125,7 +125,8 @@ model ModuleProgress {
   timeSpent         Int      @default(0) // in seconds
   completedAt       DateTime?
   savedAnswers      Json?    // Store user's answers across scenarios
-  xpAwarded         Boolean  @default(false) // Track if 250 XP already awarded
+  xpAwarded         Boolean  @default(false) // Track if badge XP (200 XP for 100% score) already awarded
+  moduleCompletionXpAwarded Boolean @default(false) // Track if module completion XP (250 XP for >=80% score) already awarded
   
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   module Module @relation(fields: [moduleId], references: [id], onDelete: Cascade)

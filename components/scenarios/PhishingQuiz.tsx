@@ -18,15 +18,17 @@ interface PhishingQuizProps {
       name: string
       icon: string
       description: string
+      xp?: number
     }
   }
   answers: { [key: number]: number }
   onAnswerSelect: (questionIndex: number, answerIndex: number) => void
   showResults: boolean
   onSubmit?: () => void
+  xpAlreadyEarned?: boolean
 }
 
-export default function PhishingQuiz({ content, answers, onAnswerSelect, showResults, onSubmit }: PhishingQuizProps) {
+export default function PhishingQuiz({ content, answers, onAnswerSelect, showResults, onSubmit, xpAlreadyEarned = false }: PhishingQuizProps) {
   const router = useRouter()
   
   // Calculate score
@@ -181,7 +183,7 @@ export default function PhishingQuiz({ content, answers, onAnswerSelect, showRes
       )}
 
       {/* Badge Award */}
-      {showResults && scoreData && scoreData.percentage >= 80 && (
+      {showResults && scoreData && scoreData.percentage === 100 && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -196,11 +198,24 @@ export default function PhishingQuiz({ content, answers, onAnswerSelect, showRes
           >
             {content.badge.icon}
           </motion.div>
-          <h3 className="text-3xl font-bold mb-2">Badge Earned!</h3>
+          <h3 className="text-3xl font-bold mb-2">
+            {xpAlreadyEarned ? 'Badge Already Earned!' : 'Badge Earned!'}
+          </h3>
           <p className="text-2xl font-semibold mb-2">{content.badge.name}</p>
           <p className="text-purple-100 text-lg">{content.badge.description}</p>
           <div className="mt-4 pt-4 border-t border-purple-400">
-            <p className="text-xl font-semibold">⭐ XP +{content.totalXP}</p>
+            <p className="text-xl font-semibold">
+              {xpAlreadyEarned ? (
+                <>✓ XP Already Awarded (200 XP)</>
+              ) : (
+                <>⭐ XP +200</>
+              )}
+            </p>
+            {xpAlreadyEarned && (
+              <p className="text-sm text-purple-200 mt-2">
+                Badges are only awarded once per module
+              </p>
+            )}
           </div>
         </motion.div>
       )}

@@ -101,7 +101,9 @@ export default function ModuleDetail({ user, setUser, logout }: ModuleDetailProp
 
     let correct = 0
     questions.forEach((q: any, idx: number) => {
-      if (currentAnswers[idx] === q.correct) correct++
+      // Check for both 'correct' (Password Island) and 'correctAnswer' (Phishing Forest)
+      const correctAnswerKey = q.correctAnswer !== undefined ? q.correctAnswer : q.correct
+      if (currentAnswers[idx] === correctAnswerKey) correct++
     })
 
     const calculatedScore = Math.round((correct / questions.length) * 100)
@@ -386,7 +388,13 @@ export default function ModuleDetail({ user, setUser, logout }: ModuleDetailProp
                 <div className="space-y-6">
                   {/* PhishingQuiz component for Phishing Forest */}
                   {currentScenario.content.title === 'Decode the Web' ? (
-                    <PhishingQuiz content={currentScenario.content} />
+                    <PhishingQuiz 
+                      content={currentScenario.content}
+                      answers={answers[currentScenarioIndex] || {}}
+                      onAnswerSelect={handleAnswerSelect}
+                      showResults={showResults}
+                      onSubmit={handleSubmitAssessment}
+                    />
                   ) : (
                     <>
                   {/* Quiz Header for Password Island */}
@@ -526,6 +534,91 @@ export default function ModuleDetail({ user, setUser, logout }: ModuleDetailProp
                       </span>
                     </motion.button>
                   )}
+
+                  {/* Score Summary - Only show after submitting */}
+                  {showResults && (() => {
+                    const questions = currentScenario.content.questions
+                    const currentAnswers = answers[currentScenarioIndex] || {}
+                    let correct = 0
+                    questions.forEach((q: any, idx: number) => {
+                      if (currentAnswers[idx] === q.correct) correct++
+                    })
+                    const percentage = Math.round((correct / questions.length) * 100)
+                    
+                    return (
+                      <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.3 }}
+                        className={`rounded-2xl p-8 text-center shadow-xl ${
+                          percentage >= 80
+                            ? 'bg-gradient-to-br from-green-500 via-emerald-500 to-green-600'
+                            : percentage >= 60
+                            ? 'bg-gradient-to-br from-yellow-500 via-orange-500 to-yellow-600'
+                            : 'bg-gradient-to-br from-red-500 via-pink-500 to-red-600'
+                        } text-white`}
+                      >
+                        <motion.div
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          transition={{ delay: 0.4, type: 'spring' }}
+                        >
+                          <h2 className="text-5xl font-bold mb-3">
+                            {percentage >= 80 ? '🎉' : percentage >= 60 ? '👍' : '📚'}
+                          </h2>
+                          <h3 className="text-3xl font-bold mb-4">Assessment Complete!</h3>
+                          <p className="text-2xl font-semibold mb-2">
+                            Score: {correct}/{questions.length} ({percentage}%)
+                          </p>
+                          <p className="text-lg opacity-90">
+                            {percentage >= 80
+                              ? '🎉 Outstanding! You\'re a password security expert!'
+                              : percentage >= 60
+                              ? '👍 Great job! You\'re getting the hang of it!'
+                              : '💪 Keep learning! Review the explanations below.'}
+                          </p>
+                        </motion.div>
+                      </motion.div>
+                    )
+                  })()}
+
+                  {/* Badge Award */}
+                  {showResults && currentScenario.content.badge && (() => {
+                    const questions = currentScenario.content.questions
+                    const currentAnswers = answers[currentScenarioIndex] || {}
+                    let correct = 0
+                    questions.forEach((q: any, idx: number) => {
+                      if (currentAnswers[idx] === q.correct) correct++
+                    })
+                    const percentage = Math.round((correct / questions.length) * 100)
+                    
+                    if (percentage >= 80) {
+                      return (
+                        <motion.div
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: 0.6 }}
+                          className="bg-gradient-to-r from-purple-600 to-indigo-600 rounded-2xl p-8 text-center text-white shadow-xl"
+                        >
+                          <motion.div
+                            initial={{ rotate: 0 }}
+                            animate={{ rotate: [0, -10, 10, -10, 0] }}
+                            transition={{ delay: 0.8, duration: 0.5 }}
+                            className="text-7xl mb-4"
+                          >
+                            {currentScenario.content.badge.icon}
+                          </motion.div>
+                          <h3 className="text-3xl font-bold mb-2">Badge Earned!</h3>
+                          <p className="text-2xl font-semibold mb-2">{currentScenario.content.badge.name}</p>
+                          <p className="text-purple-100 text-lg">{currentScenario.content.badge.description}</p>
+                          <div className="mt-4 pt-4 border-t border-purple-400">
+                            <p className="text-xl font-semibold">⭐ XP +{currentScenario.content.badge.xp}</p>
+                          </div>
+                        </motion.div>
+                      )
+                    }
+                    return null
+                  })()}
                     </>
                   )}
                 </div>
@@ -533,40 +626,38 @@ export default function ModuleDetail({ user, setUser, logout }: ModuleDetailProp
             </motion.div>
           </AnimatePresence>
 
-          {/* Navigation Buttons */}
-          <div className="flex justify-between items-center">
-            <button
-              onClick={handlePrevious}
-              disabled={currentScenarioIndex === 0}
-              className="btn-secondary disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <FaArrowLeft className="inline mr-2" />
-              Previous
-            </button>
-
-            {currentScenarioIndex < scenarios.length - 1 ? (
+          {/* Navigation Buttons - Hide when in assessment before submitting */}
+          {!(currentScenario.type === 'ASSESSMENT' && !showResults) && (
+            <div className="flex justify-between items-center">
               <button
-                onClick={handleNext}
-                className="btn-primary"
-                disabled={
-                  currentScenario.type === 'ASSESSMENT' && !showResults
-                }
+                onClick={handlePrevious}
+                disabled={currentScenarioIndex === 0}
+                className="btn-secondary disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Next
-                <FaArrowRight className="inline ml-2" />
+                <FaArrowLeft className="inline mr-2" />
+                Previous
               </button>
-            ) : (
-              showResults && (
-                <button
-                  onClick={() => router.push('/dashboard')}
-                  className="btn-primary"
-                >
-                  <FaTrophy className="inline mr-2" />
-                  Complete Module
-                </button>
-              )
-            )}
-          </div>
+
+              <button
+                onClick={currentScenarioIndex < scenarios.length - 1 ? handleNext : () => router.push('/dashboard')}
+                className="btn-primary"
+              >
+                {currentScenarioIndex < scenarios.length - 1 ? (
+                  <>
+                    Next
+                    <FaArrowRight className="inline ml-2" />
+                  </>
+                ) : (
+                  showResults && (
+                    <>
+                      <FaTrophy className="inline mr-2" />
+                      Complete Module
+                    </>
+                  )
+                )}
+              </button>
+            </div>
+          )}
 
           {/* Score Popup */}
           {showScorePopup && (

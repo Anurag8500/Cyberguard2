@@ -34,7 +34,7 @@ async function main() {
     update: {},
     create: {
       slug: 'phishing-forest',
-      title: '🌲 Phishing Forest',
+      title: 'Phishing Forest',
       description: 'Learn to detect malicious links and identify safe vs suspicious URLs by observing patterns and hidden tricks.',
       order: 2,
       xpReward: 420,

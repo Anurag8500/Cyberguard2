@@ -5,54 +5,46 @@ const prisma = new PrismaClient()
 async function main() {
   console.log('🌱 Seeding database...')
 
-  // Create Modules
-  const module1 = await prisma.module.upsert({
-    where: { slug: 'password-fortress' },
+  // Delete old modules and related data
+  await prisma.scenario.deleteMany({})
+  await prisma.moduleProgress.deleteMany({})
+  await prisma.module.deleteMany({})
+  console.log('🗑️ Old modules deleted')
+
+  // Create Module -1: Password Island
+  const passwordIsland = await prisma.module.upsert({
+    where: { slug: 'password-island' },
     update: {},
     create: {
-      slug: 'password-fortress',
-      title: 'Password Fortress',
-      description: 'Master password security through interactive challenges. Create unbreakable passwords, enable 2FA, and protect your accounts.',
-      order: 1,
-      xpReward: 150,
-      icon: '🔐',
+      slug: 'password-island',
+      title: 'Password Island',
+      description: 'Learn what makes a password weak or strong through fast, fun, and hands-on challenges. Understand password patterns, why hackers love them, and how to outsmart them.',
+      order: -1,
+      xpReward: 100,
+      icon: '🏝️',
       isPublished: true,
     },
   })
 
-  const module2 = await prisma.module.upsert({
-    where: { slug: 'safe-online-shopping' },
-    update: {},
-    create: {
-      slug: 'safe-online-shopping',
-      title: 'Safe Online Shopping',
-      description: 'Spot fake websites, identify scams, and shop safely. Learn to detect phishing, verify payment gateways, and avoid fraud.',
-      order: 2,
-      xpReward: 150,
-      icon: '🛒',
-      isPublished: true,
-    },
-  })
-
-  console.log('✅ Modules created')
+  console.log('✅ Password Island module created')
 
   // Create Badges
   const badges = [
     {
-      slug: 'password-guardian',
-      name: 'Password Guardian',
-      description: 'Completed Password Fortress module',
-      icon: '🛡️',
+      slug: 'password-apprentice',
+      name: 'Password Apprentice',
+      description: 'Completed Password Basics 101',
+      icon: '🎓',
       category: 'MODULE_COMPLETION' as const,
       rarity: 'COMMON' as const,
     },
     {
-      slug: 'smart-shopper',
-      name: 'Smart Shopper',
-      description: 'Completed Safe Online Shopping module',
-      icon: '🛍️',
+      slug: 'password-island-master',
+      name: 'Password Island Master',
+      description: 'Completed all Password Island modules',
+      icon: '🏝️',
       category: 'MODULE_COMPLETION' as const,
-      rarity: 'COMMON' as const,
+      rarity: 'RARE' as const,
     },
     {
       slug: 'first-steps',
@@ -128,47 +120,105 @@ async function main() {
 
   console.log('✅ Achievements created')
 
-  // Create Scenarios for Module 1: Password Fortress
-  const module1Scenarios = [
+  // Create Scenarios for Password Island - Submodule 1: Password Basics 101
+  const passwordIslandScenarios = [
+    // Scenario 1: The Gate's Challenge
     {
-      moduleId: module1.id,
-      title: 'Welcome to Password Security',
-      description: 'Learn the basics of password security',
+      moduleId: passwordIsland.id,
+      title: 'The Gate\'s Challenge',
+      description: 'You arrive at the Island Gate. A glowing panel asks you to set a password to enter.',
       order: 1,
-      type: 'STORY' as const,
-      content: {
-        story: 'Meet Alex, a college student who just created accounts on multiple websites using the same password: "password123". Let\'s learn why this is dangerous and how to create strong, unique passwords.',
-        learningPoints: [
-          'Why password reuse is dangerous',
-          'Common password attacks',
-          'Principles of strong passwords',
-        ],
-      },
-    },
-    {
-      moduleId: module1.id,
-      title: 'Password Strength Checker',
-      description: 'Learn to identify weak passwords',
-      order: 2,
       type: 'INTERACTIVE' as const,
       content: {
-        type: 'password_analysis',
+        type: 'password_challenge',
+        theme: 'The Gate of Guessers',
+        instructions: 'Tap on the password that would take the longest to crack.',
+        hint: 'Think: longer, random, mixed case, symbols.',
         passwords: [
-          { text: 'password123', strength: 'weak', issues: ['Common word', 'Too simple', 'No special characters'] },
-          { text: 'P@ssw0rd!', strength: 'medium', issues: ['Common pattern', 'Predictable substitutions'] },
-          { text: 'Tr0ub4dor&3', strength: 'strong', issues: [] },
-          { text: 'correct-horse-battery-staple', strength: 'very strong', issues: [] },
+          {
+            text: '123456',
+            crackTime: '0.2 seconds',
+            crackTimeSeconds: 0.2,
+            emoji: '⚡',
+            isCorrect: false,
+            explanation: 'Simple numeric sequences are cracked instantly by brute-force tools.',
+          },
+          {
+            text: 'P@ssw0rd',
+            crackTime: '3 hours',
+            crackTimeSeconds: 10800,
+            emoji: '⚠️',
+            isCorrect: false,
+            explanation: 'Common words with predictable substitutions are still weak.',
+          },
+          {
+            text: 'MyDog2020!',
+            crackTime: '1 month',
+            crackTimeSeconds: 2592000,
+            emoji: '💪',
+            isCorrect: false,
+            explanation: 'Personal information is predictable. Better, but hackers can guess this.',
+          },
+          {
+            text: 'G!x@82qL#n',
+            crackTime: '100+ years',
+            crackTimeSeconds: 3153600000,
+            emoji: '🔐',
+            isCorrect: true,
+            explanation: 'Random characters with mixed case, numbers, and symbols create an uncrackable fortress!',
+          },
         ],
+        miniInsight: 'Hackers use brute-force tools that try every possible combo. The longer and more random your password, the harder it is to crack.',
+        videoLink: {
+          title: 'How Hackers Crack Your Passwords',
+          url: 'https://www.youtube.com/watch?v=7U-RbOKanYs',
+          source: 'Computerphile',
+        },
       },
     },
+    // Scenario 2: The Password Lab
     {
-      moduleId: module1.id,
-      title: 'Create Your Strong Password',
-      description: 'Practice creating strong passwords',
-      order: 3,
+      moduleId: passwordIsland.id,
+      title: 'The Password Lab',
+      description: 'The lab console gives feedback live as you type.',
+      order: 2,
       type: 'MINI_GAME' as const,
       content: {
         type: 'password_creator',
+        theme: 'INTERACTIVE PLAY',
+        instructions: 'Create a sample password — system reacts in real time.',
+        goal: 'Get at least one password rated "Fortified."',
+        tip: 'Try 12+ chars with upper, lower, numbers, and symbols.',
+        strengthLevels: [
+          {
+            level: 'weak',
+            color: 'red',
+            emoji: '🔴',
+            feedback: 'Add more characters',
+            minScore: 0,
+          },
+          {
+            level: 'medium',
+            color: 'orange',
+            emoji: '🟠',
+            feedback: 'Add symbols or numbers',
+            minScore: 30,
+          },
+          {
+            level: 'strong',
+            color: 'green',
+            emoji: '🟢',
+            feedback: 'Nice! Mix cases + symbols!',
+            minScore: 60,
+          },
+          {
+            level: 'fortified',
+            color: 'purple',
+            emoji: '🟣',
+            feedback: 'Uncrackable Fortress!',
+            minScore: 85,
+          },
+        ],
         requirements: {
           minLength: 12,
           requireUppercase: true,
@@ -176,181 +226,117 @@ async function main() {
           requireNumbers: true,
           requireSpecialChars: true,
         },
-        hints: [
-          'Use a passphrase (e.g., "Coffee-Sunrise-Mountain-42!")',
-          'Mix random words with numbers and symbols',
-          'Avoid personal information',
+        learningNuggets: [
+          'Never reuse the same password across sites.',
+          'Avoid birthdays, names, pets.',
+          'Use passphrases instead of passwords.',
+          'Use a password manager for safety.',
+          'Enable 2FA whenever possible.',
         ],
+        referenceLink: {
+          title: 'How to Create Strong Passwords',
+          url: 'https://safety.google/authentication/',
+          source: 'Google Safety Center',
+        },
       },
     },
+    // Scenario 3: The Gatekeeper's Quiz
     {
-      moduleId: module1.id,
-      title: 'Two-Factor Authentication',
-      description: 'Learn about 2FA and why it matters',
-      order: 4,
-      type: 'STORY' as const,
-      content: {
-        story: 'Even with a strong password, accounts can be compromised. Two-Factor Authentication (2FA) adds an extra layer of security.',
-        learningPoints: [
-          'What is 2FA',
-          'Types of 2FA (SMS, authenticator apps, hardware keys)',
-          'When to use 2FA',
-        ],
-      },
-    },
-    {
-      moduleId: module1.id,
-      title: 'Final Assessment',
-      description: 'Test your password security knowledge',
-      order: 5,
-      type: 'ASSESSMENT' as const,
-      content: {
-        questions: [
-          {
-            question: 'Which password is the strongest?',
-            options: ['password123', 'P@ssw0rd', 'MyDog123!', 'Tr0ub4dor&3-Xkcd-2024'],
-            correct: 3,
-            explanation: 'Longer passwords with random elements are stronger than short, predictable ones.',
-          },
-          {
-            question: 'Is it safe to reuse passwords across different websites?',
-            options: ['Yes, if the password is strong', 'No, never', 'Only for unimportant sites', 'Yes, with 2FA enabled'],
-            correct: 1,
-            explanation: 'Password reuse is dangerous because if one site is breached, all your accounts are at risk.',
-          },
-          {
-            question: 'What is the best type of 2FA?',
-            options: ['SMS codes', 'Email codes', 'Authenticator app', 'Security question'],
-            correct: 2,
-            explanation: 'Authenticator apps are more secure than SMS as they cannot be intercepted.',
-          },
-        ],
-      },
-    },
-  ]
-
-  for (const scenario of module1Scenarios) {
-    await prisma.scenario.create({
-      data: scenario,
-    })
-  }
-
-  console.log('✅ Module 1 scenarios created')
-
-  // Create Scenarios for Module 2: Safe Online Shopping
-  const module2Scenarios = [
-    {
-      moduleId: module2.id,
-      title: 'The Fake Website Trap',
-      description: 'Learn to identify fake shopping websites',
-      order: 1,
-      type: 'STORY' as const,
-      content: {
-        story: 'Sarah found an amazing deal on a designer handbag for 80% off. But is the website legitimate? Let\'s learn the warning signs.',
-        learningPoints: [
-          'Checking website URLs carefully',
-          'Looking for HTTPS and padlock icons',
-          'Identifying too-good-to-be-true deals',
-        ],
-      },
-    },
-    {
-      moduleId: module2.id,
-      title: 'Spot the Fake Store',
-      description: 'Interactive game to identify fake websites',
-      order: 2,
-      type: 'MINI_GAME' as const,
-      content: {
-        type: 'website_comparison',
-        websites: [
-          {
-            url: 'https://www.amazon.com',
-            isLegit: true,
-            reasons: ['Official domain', 'HTTPS secure', 'Verified badge'],
-          },
-          {
-            url: 'http://amazn-deals.net',
-            isLegit: false,
-            reasons: ['Misspelled domain', 'No HTTPS', 'Suspicious subdomain'],
-          },
-        ],
-      },
-    },
-    {
-      moduleId: module2.id,
-      title: 'Payment Gateway Security',
-      description: 'Learn to verify secure payment methods',
+      moduleId: passwordIsland.id,
+      title: 'The Gatekeeper\'s Quiz',
+      description: 'Earn your "Password Apprentice" badge',
       order: 3,
-      type: 'INTERACTIVE' as const,
-      content: {
-        type: 'payment_analysis',
-        scenarios: [
-          {
-            method: 'Credit card on HTTPS site',
-            safe: true,
-            explanation: 'Credit cards offer fraud protection and HTTPS encrypts data',
-          },
-          {
-            method: 'Wire transfer to unknown seller',
-            safe: false,
-            explanation: 'Wire transfers are irreversible and offer no buyer protection',
-          },
-        ],
-      },
-    },
-    {
-      moduleId: module2.id,
-      title: 'Reading Reviews & Red Flags',
-      description: 'Learn to spot fake reviews',
-      order: 4,
-      type: 'STORY' as const,
-      content: {
-        story: 'Not all 5-star reviews are genuine. Learn to identify fake reviews and red flags.',
-        learningPoints: [
-          'Spotting generic or overly positive reviews',
-          'Checking review dates and patterns',
-          'Looking for verified purchase badges',
-        ],
-      },
-    },
-    {
-      moduleId: module2.id,
-      title: 'Final Shopping Safety Quiz',
-      description: 'Test your online shopping safety knowledge',
-      order: 5,
       type: 'ASSESSMENT' as const,
       content: {
+        theme: 'FINAL CHALLENGE',
+        format: 'MCQ (mix of logic & real-life mini-scenarios)',
+        badge: {
+          name: 'Password Apprentice',
+          icon: '🎓',
+          xp: 100,
+        },
         questions: [
           {
-            question: 'What should you check first when visiting a shopping website?',
-            options: ['Product reviews', 'HTTPS and valid domain', 'Shipping costs', 'Return policy'],
+            question: 'You create Sattwik123. It\'s easy to remember. Why is it weak?',
+            options: [
+              'It uses letters',
+              'It includes your name',
+              'It\'s too long',
+              'It uses numbers',
+            ],
             correct: 1,
-            explanation: 'Always verify the website is legitimate before entering any information.',
+            hint: 'Personal info = predictable pattern.',
+            explanation: 'Passwords containing personal information like names are easily guessed by hackers who can find this information on social media.',
           },
           {
-            question: 'Which payment method offers the most buyer protection?',
-            options: ['Wire transfer', 'Credit card', 'Cash on delivery', 'Cryptocurrency'],
-            correct: 1,
-            explanation: 'Credit cards offer fraud protection and allow chargebacks for unauthorized transactions.',
+            question: 'You\'re told to make a password that lasts 100 years. Which is best?',
+            options: [
+              'mypassword',
+              'SuperStrongPassword123!',
+              'X7$!vB9@l2T#',
+              'Mybirthday@1999',
+            ],
+            correct: 2,
+            hint: 'Random and complex = uncrackable.',
+            explanation: 'Completely random combinations of uppercase, lowercase, numbers, and symbols are the hardest to crack.',
           },
           {
-            question: 'A deal seems too good to be true. What should you do?',
-            options: ['Buy immediately before it ends', 'Research the seller and reviews', 'Share with friends', 'Enter your card details'],
-            correct: 1,
-            explanation: 'If a deal seems too good to be true, it probably is. Always research before purchasing.',
+            question: 'Your password was leaked in a breach. What should you do first?',
+            options: [
+              'Ignore it',
+              'Change only if you get hacked',
+              'Change that password immediately',
+              'Complain on social media',
+            ],
+            correct: 2,
+            hint: 'Act fast to prevent account takeover.',
+            explanation: 'Change your password immediately and enable 2FA. Also change it on any other sites where you used the same password.',
+            referenceLink: {
+              title: 'Have I Been Pwned? – Check Leaks',
+              url: 'https://haveibeenpwned.com/',
+            },
+          },
+          {
+            question: 'Which combination is safest?',
+            options: [
+              '8 lowercase letters',
+              '12 uppercase letters',
+              '16 characters mixed types',
+              '10 numbers',
+            ],
+            correct: 2,
+            hint: 'More length + variety = stronger.',
+            explanation: 'Length combined with character variety (upper, lower, numbers, symbols) creates exponentially more possible combinations.',
+          },
+          {
+            question: 'If you forget passwords often, what\'s the best approach?',
+            options: [
+              'Write in notebook',
+              'Save in phone notes',
+              'Use a password manager',
+              'Ask a friend to remember',
+            ],
+            correct: 2,
+            hint: 'Secure storage = password manager.',
+            explanation: 'Password managers securely encrypt and store all your passwords, requiring you to remember only one master password.',
+            referenceLink: {
+              title: 'What is a Password Manager?',
+              url: 'https://www.youtube.com/watch?v=Q0GeMSFGIgI',
+              source: 'Techquickie',
+            },
           },
         ],
       },
     },
   ]
 
-  for (const scenario of module2Scenarios) {
+  for (const scenario of passwordIslandScenarios) {
     await prisma.scenario.create({
       data: scenario,
     })
   }
 
-  console.log('✅ Module 2 scenarios created')
+  console.log('✅ Password Island - Submodule 1 scenarios created')
   console.log('🎉 Database seeded successfully!')
 }
 

@@ -23,26 +23,45 @@ interface LinkDecoderProps {
     tip: string
     xpReward: number
   }
+  scenarioIndex?: number
+  savedAnswer?: number | null
+  savedLinkReveals?: { [key: number]: boolean }
+  onAnswerSelect?: (scenarioIndex: number, answer: number) => void
+  onLinkRevealChange?: (scenarioIndex: number, reveals: { [key: number]: boolean }) => void
 }
 
-export default function LinkDecoder({ content }: LinkDecoderProps) {
-  const [selectedOption, setSelectedOption] = useState<number | null>(null)
+export default function LinkDecoder({ 
+  content, 
+  scenarioIndex = 0,
+  savedAnswer = null,
+  savedLinkReveals = {},
+  onAnswerSelect,
+  onLinkRevealChange 
+}: LinkDecoderProps) {
+  const [selectedOption, setSelectedOption] = useState<number | null>(savedAnswer)
   const [hoveredLink, setHoveredLink] = useState<string | null>(null)
-  const [showResults, setShowResults] = useState(false)
-  const [linkReveals, setLinkReveals] = useState<{ [key: number]: boolean }>({})
+  const [showResults, setShowResults] = useState(savedAnswer !== null)
+  const [linkReveals, setLinkReveals] = useState<{ [key: number]: boolean }>(savedLinkReveals)
 
   const handleOptionClick = (index: number) => {
     if (!showResults) {
       setSelectedOption(index)
       setShowResults(true)
+      if (onAnswerSelect) {
+        onAnswerSelect(scenarioIndex, index)
+      }
     }
   }
 
   const toggleLinkReveal = (index: number) => {
-    setLinkReveals(prev => ({
-      ...prev,
-      [index]: !prev[index]
-    }))
+    const newReveals = {
+      ...linkReveals,
+      [index]: !linkReveals[index]
+    }
+    setLinkReveals(newReveals)
+    if (onLinkRevealChange) {
+      onLinkRevealChange(scenarioIndex, newReveals)
+    }
   }
 
   // Scenario 1: Hover Test

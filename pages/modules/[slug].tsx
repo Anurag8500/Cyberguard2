@@ -58,6 +58,14 @@ export default function ModuleDetail({ user, setUser, logout }: ModuleDetailProp
       setModule(data.module)
       setScenarios(data.scenarios)
       setCurrentScenarioIndex(data.progress?.currentScenario || 0)
+      
+      // Load saved answers if module is not completed
+      if (data.progress?.savedAnswers && data.progress.status !== 'COMPLETED') {
+        setAnswers(data.progress.savedAnswers)
+      } else {
+        // Clear answers if reattempting after completion
+        setAnswers({})
+      }
     } catch (error) {
       console.error('Error fetching module:', error)
       router.push('/dashboard')
@@ -85,13 +93,33 @@ export default function ModuleDetail({ user, setUser, logout }: ModuleDetailProp
   }
 
   const handleAnswerSelect = (questionIndex: number, answerIndex: number) => {
-    setAnswers({
+    const newAnswers = {
       ...answers,
       [currentScenarioIndex]: {
         ...answers[currentScenarioIndex],
         [questionIndex]: answerIndex,
       },
-    })
+    }
+    setAnswers(newAnswers)
+    
+    // Save answers to backend
+    saveAnswers(newAnswers)
+  }
+  
+  const saveAnswers = async (answersToSave: any) => {
+    try {
+      const token = localStorage.getItem('token')
+      await fetch(`/api/modules/${slug}/save-answers`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ answers: answersToSave }),
+      })
+    } catch (error) {
+      console.error('Error saving answers:', error)
+    }
   }
 
   const handleSubmitAssessment = async () => {
@@ -178,8 +206,8 @@ export default function ModuleDetail({ user, setUser, logout }: ModuleDetailProp
     )
   }
 
-  const currentScenario = scenarios[currentScenarioIndex]
-  const progress = ((currentScenarioIndex + 1) / scenarios.length) * 100
+  const currentScenario = scenarios[currentScenarioIndex];
+  const progress = ((currentScenarioIndex + 1) / scenarios.length) * 100;
 
   return (
     <>
@@ -280,7 +308,34 @@ export default function ModuleDetail({ user, setUser, logout }: ModuleDetailProp
                   
                   {/* LinkDecoder scenarios (Phishing Forest) */}
                   {currentScenario.content.scenario && (
-                    <LinkDecoder content={currentScenario.content} />
+                    <LinkDecoder 
+                      content={currentScenario.content}
+                      scenarioIndex={currentScenarioIndex}
+                      savedAnswer={answers[currentScenarioIndex]?.selectedOption}
+                      savedLinkReveals={answers[currentScenarioIndex]?.linkReveals}
+                      onAnswerSelect={(idx, answer) => {
+                        const newAnswers = {
+                          ...answers,
+                          [idx]: {
+                            ...answers[idx],
+                            selectedOption: answer
+                          }
+                        }
+                        setAnswers(newAnswers)
+                        saveAnswers(newAnswers)
+                      }}
+                      onLinkRevealChange={(idx, reveals) => {
+                        const newAnswers = {
+                          ...answers,
+                          [idx]: {
+                            ...answers[idx],
+                            linkReveals: reveals
+                          }
+                        }
+                        setAnswers(newAnswers)
+                        saveAnswers(newAnswers)
+                      }}
+                    />
                   )}
                   
                   {currentScenario.content.type === 'password_analysis' && (

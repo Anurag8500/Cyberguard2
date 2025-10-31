@@ -124,6 +124,8 @@ model ModuleProgress {
   attempts          Int      @default(0)
   timeSpent         Int      @default(0) // in seconds
   completedAt       DateTime?
+  savedAnswers      Json?    // Store user's answers across scenarios
+  xpAwarded         Boolean  @default(false) // Track if 250 XP already awarded
   
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   module Module @relation(fields: [moduleId], references: [id], onDelete: Cascade)

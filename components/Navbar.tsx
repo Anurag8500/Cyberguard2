@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { FaShieldAlt, FaTrophy, FaUser, FaCog, FaSignOutAlt } from 'react-icons/fa'
+import { FaShieldAlt, FaTrophy, FaUser, FaCog, FaSignOutAlt, FaSearch, FaExclamationTriangle } from 'react-icons/fa'
 
 interface NavbarProps {
   user: any
@@ -49,6 +49,20 @@ export default function Navbar({ user, logout }: NavbarProps) {
               className={`hover:text-cyber-blue transition-colors ${router.pathname.startsWith('/modules') ? 'text-cyber-blue' : ''}`}
             >
               Modules
+            </Link>
+            <Link 
+              href="/inspect-zone" 
+              className={`hover:text-cyber-blue transition-colors ${router.pathname === '/inspect-zone' ? 'text-cyber-blue' : ''}`}
+            >
+              <FaSearch className="inline mr-1" />
+              Inspect Zone
+            </Link>
+            <Link 
+              href="/cybersos" 
+              className={`hover:text-cyber-blue transition-colors ${router.pathname === '/cybersos' ? 'text-cyber-blue' : ''}`}
+            >
+              <FaExclamationTriangle className="inline mr-1" />
+              CyberSOS
             </Link>
             <Link 
               href="/leaderboard" 

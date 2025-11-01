@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { FaGamepad, FaLock, FaUserSecret, FaNetworkWired, FaSearch, FaBug } from 'react-icons/fa';
+import { useRouter } from 'next/router';
 import Navbar from '../components/Navbar';
 
 const games = [
@@ -55,9 +56,18 @@ const games = [
 ];
 
 export default function SimulationZone() {
+  const router = useRouter();
+  
   const handleGameClick = (gameId: number, gameTitle: string) => {
-    // Placeholder for game launch - will be implemented later
-    alert(`${gameTitle} - Coming Soon!\n\nGame instructions will be added in the next update.`);
+    // Route to specific game pages
+    if (gameId === 1) {
+      router.push('/games/cyber-escape-chamber');
+    } else if (gameId === 2) {
+      router.push('/games/cyberverse-chronicles');
+    } else {
+      // Placeholder for other games - will be implemented later
+      alert(`${gameTitle} - Coming Soon!\n\nGame instructions will be added in the next update.`);
+    }
   };
 
   return (

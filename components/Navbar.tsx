@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { FaShieldAlt, FaTrophy, FaUser, FaCog, FaSignOutAlt, FaSearch, FaExclamationTriangle, FaGamepad } from 'react-icons/fa'
+import { FaShieldAlt, FaTrophy, FaUser, FaCog, FaSignOutAlt, FaSearch, FaExclamationTriangle, FaGamepad, FaBook } from 'react-icons/fa'
 
 interface NavbarProps {
   user: any
@@ -70,6 +70,13 @@ export default function Navbar({ user, logout }: NavbarProps) {
             >
               <FaGamepad className="inline mr-1" />
               Simulation Zone
+            </Link>
+            <Link 
+              href="/cyberpedia" 
+              className={`hover:text-cyber-blue transition-colors ${router.pathname === '/cyberpedia' ? 'text-cyber-blue' : ''}`}
+            >
+              <FaBook className="inline mr-1" />
+              CyberPedia
             </Link>
             <Link 
               href="/leaderboard" 

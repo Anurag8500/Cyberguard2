@@ -70,6 +70,15 @@ export default function Dashboard({ user, setUser, logout }: DashboardProps) {
 
   const { modules, stats, recentBadges } = dashboardData
 
+  // Safe numeric fallbacks to avoid NaN in progress calculations
+  const safeStreak = Number(user?.streak) || 0
+  const currentXP = Number(user?.xp) || 0
+  let safeNextLevelXP = Number(stats?.nextLevelXP) || 0
+  if (safeNextLevelXP <= 0 || safeNextLevelXP <= currentXP) {
+    // Ensure a positive, greater-than-current max to avoid NaN/Infinity and negative remaining
+    safeNextLevelXP = currentXP + 500
+  }
+
   return (
     <>
       <Head>
@@ -86,10 +95,12 @@ export default function Dashboard({ user, setUser, logout }: DashboardProps) {
             animate={{ opacity: 1, y: 0 }}
             className="mb-8"
           >
-            <h1 className="text-4xl font-bold text-gray-800 mb-2">
-              Welcome back, {user.fullName}! 👋
+            <h1 className="text-4xl md:text-5xl font-extrabold mb-2">
+              <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+                Welcome back, {user.fullName}! 👋
+              </span>
             </h1>
-            <p className="text-gray-600">
+            <p className="text-gray-600 text-lg">
               Continue your cybersecurity journey and level up your skills
             </p>
           </motion.div>
@@ -98,7 +109,7 @@ export default function Dashboard({ user, setUser, logout }: DashboardProps) {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <ProgressCard
               title="Current Streak"
-              value={user.streak}
+              value={safeStreak}
               max={30}
               icon={<FaFire />}
               color="text-orange-500"
@@ -106,8 +117,8 @@ export default function Dashboard({ user, setUser, logout }: DashboardProps) {
             />
             <ProgressCard
               title="Total XP"
-              value={user.xp}
-              max={stats.nextLevelXP}
+              value={currentXP}
+              max={safeNextLevelXP}
               icon={<FaStar />}
               color="text-yellow-500"
               suffix=" XP"
@@ -135,45 +146,34 @@ export default function Dashboard({ user, setUser, logout }: DashboardProps) {
               animate={{ opacity: 1, y: 0 }}
               className="mb-8"
             >
-              <h2 className="text-2xl font-bold text-gray-800 mb-4">🏆 Recent Achievements</h2>
+              <h2 className="text-2xl font-bold mb-4">
+                <span className="bg-gradient-to-r from-amber-600 to-pink-600 bg-clip-text text-transparent">🏆 Recent Achievements</span>
+              </h2>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {recentBadges.map((badge: any, i: number) => (
                   <motion.div
                     key={badge.id}
-                    initial={{ opacity: 0, scale: 0 }}
+                    initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: i * 0.1 }}
-                    className="card text-center"
+                    transition={{ delay: i * 0.08 }}
+                    className="rounded-xl bg-white border border-gray-200 shadow p-4 text-center"
                   >
                     <div className="text-4xl mb-2">{badge.icon}</div>
                     <h3 className="font-semibold text-sm text-gray-800">{badge.name}</h3>
-                    <p className="text-xs text-gray-500 mt-1">{badge.description}</p>
+                    <p className="text-xs text-gray-500 mt-1 line-clamp-2">{badge.description}</p>
                   </motion.div>
                 ))}
               </div>
             </motion.div>
           )}
 
-          {/* Continue Learning */}
-          <div className="mb-8">
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">📚 Your Learning Path</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {modules.map((module: any, i: number) => (
-                <ModuleCard
-                  key={module.id}
-                  module={module}
-                  progress={module.progress}
-                  isLocked={module.isLocked}
-                />
-              ))}
-            </div>
-          </div>
+          {/* Learning Path removed as requested */}
 
           {/* Quick Stats */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="card bg-gradient-to-r from-primary-600 to-cyber-blue text-white"
+            className="rounded-2xl bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-white shadow-xl p-6"
           >
             <div className="flex items-center justify-between">
               <div>
@@ -182,7 +182,7 @@ export default function Dashboard({ user, setUser, logout }: DashboardProps) {
                   You're {stats.nextLevelXP - user.xp} XP away from Level {user.level + 1}
                 </p>
               </div>
-              <FaChartLine className="text-6xl opacity-50" />
+              <FaChartLine className="text-6xl opacity-60" />
             </div>
           </motion.div>
         </main>

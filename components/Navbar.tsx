@@ -48,6 +48,7 @@ export default function Navbar({ user, logout }: NavbarProps) {
               href="/modules" 
               className={`hover:text-cyber-blue transition-colors ${router.pathname.startsWith('/modules') ? 'text-cyber-blue' : ''}`}
             >
+              <FaBook className="inline mr-1" />
               Modules
             </Link>
             <Link 
@@ -89,6 +90,7 @@ export default function Navbar({ user, logout }: NavbarProps) {
               href="/profile" 
               className={`hover:text-cyber-blue transition-colors ${router.pathname === '/profile' ? 'text-cyber-blue' : ''}`}
             >
+              <FaUser className="inline mr-1" />
               Profile
             </Link>
           </div>

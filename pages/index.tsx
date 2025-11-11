@@ -1,9 +1,18 @@
 import Head from 'next/head'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
+import { useState } from 'react'
+import { useRouter } from 'next/router'
 import { FaShieldAlt, FaGamepad, FaGlobe, FaMobile, FaTrophy, FaUsers } from 'react-icons/fa'
 
 export default function Home() {
+  const router = useRouter()
+  const [isNavigating, setIsNavigating] = useState(false)
+
+  const navigateWithTransition = (url: string) => {
+    setIsNavigating(true)
+    setTimeout(() => router.push(url), 250)
+  }
   return (
     <>
       <Head>
@@ -21,11 +30,12 @@ export default function Home() {
             <h1 className="text-2xl font-bold text-white">CyberGuard Academy</h1>
           </div>
           <div className="flex gap-4">
-            <Link href="/auth/login" className="text-white hover:text-cyber-blue transition-colors">
+            <Link
+              href="/auth/login"
+              className="btn-primary"
+              onClick={(e) => { e.preventDefault(); navigateWithTransition('/auth/login') }}
+            >
               Login
-            </Link>
-            <Link href="/auth/signup" className="btn-primary">
-              Get Started Free
             </Link>
           </div>
         </nav>
@@ -34,8 +44,8 @@ export default function Home() {
         <section className="container mx-auto px-6 py-20 text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
+            animate={isNavigating ? { opacity: 0, y: -20 } : { opacity: 1, y: 0 }}
+            transition={{ duration: isNavigating ? 0.25 : 0.8 }}
           >
             <h2 className="text-5xl md:text-7xl font-bold text-white mb-6">
               Learn Cybersecurity<br />
@@ -47,12 +57,13 @@ export default function Home() {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-              <Link href="/auth/signup" className="btn-primary text-lg px-8 py-4">
+              <Link
+                href="/auth/signup"
+                className="btn-primary text-lg px-8 py-4"
+                onClick={(e) => { e.preventDefault(); navigateWithTransition('/auth/signup') }}
+              >
                 🚀 Start Learning Free
               </Link>
-              <button className="btn-secondary text-lg px-8 py-4">
-                🎮 Try Demo Scenario
-              </button>
             </div>
 
             {/* Animated Shield */}
@@ -73,27 +84,7 @@ export default function Home() {
           </motion.div>
         </section>
 
-        {/* Statistics Counter */}
-        <section className="container mx-auto px-6 py-12">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
-            {[
-              { number: '10,000+', label: 'Users Protected' },
-              { number: '50,000+', label: 'Scenarios Completed' },
-              { number: '25,000+', label: 'Badges Earned' },
-            ].map((stat, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, scale: 0.5 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: i * 0.2 }}
-                className="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/20"
-              >
-                <div className="text-4xl font-bold text-cyber-blue mb-2">{stat.number}</div>
-                <div className="text-gray-300">{stat.label}</div>
-              </motion.div>
-            ))}
-          </div>
-        </section>
+        {/* Statistics Counter - REMOVED */}
 
         {/* Key Features */}
         <section className="container mx-auto px-6 py-20">
@@ -105,33 +96,33 @@ export default function Home() {
             {[
               {
                 icon: <FaGamepad className="text-5xl text-cyber-purple" />,
-                title: 'Interactive Scenarios',
-                description: 'Learn by doing with real-life simulations. Face phishing emails, fake websites, and social engineering in a safe environment.'
+                title: 'Interactive Learning Modules',
+                description: 'Master cybersecurity through hands-on modules including Password Fortress, Safe Online Shopping, Phishing Forest, and more.'
               },
               {
                 icon: <FaTrophy className="text-5xl text-cyber-green" />,
-                title: 'Gamified Learning',
-                description: 'Earn XP, unlock badges, climb leaderboards. Track your progress and compete with friends while learning.'
+                title: 'Gamified Experience',
+                description: 'Earn XP, unlock badges, and track your progress as you complete scenarios and master new skills.'
               },
               {
-                icon: <FaGlobe className="text-5xl text-cyber-blue" />,
-                title: 'Multi-Language Support',
-                description: 'Available in Hindi, Bengali, English, and more. Cybersecurity education for everyone, in their language.'
+                icon: <FaShieldAlt className="text-5xl text-cyber-blue" />,
+                title: 'CyberPedia Knowledge Base',
+                description: 'Access comprehensive FAQs, safety tips, and glossary to deepen your understanding of cybersecurity concepts.'
               },
               {
                 icon: <FaMobile className="text-5xl text-cyber-purple" />,
-                title: 'Mobile-Friendly',
-                description: 'Learn anywhere, anytime. Fully responsive design works perfectly on phones, tablets, and desktops.'
+                title: 'Adventure Games',
+                description: 'Immerse yourself in Cyber Escape Chamber and Cyberverse Chronicles - interactive games that teach security concepts.'
               },
               {
-                icon: <FaShieldAlt className="text-5xl text-cyber-green" />,
-                title: 'Real-World Skills',
-                description: 'Build practical cybersecurity skills that protect you online. No boring theory, just actionable knowledge.'
+                icon: <FaGlobe className="text-5xl text-cyber-green" />,
+                title: 'Simulation Zone',
+                description: 'Practice real-world scenarios in a safe environment with interactive simulations and practical exercises.'
               },
               {
                 icon: <FaUsers className="text-5xl text-cyber-blue" />,
-                title: 'Community Learning',
-                description: 'Join thousands of learners. Share experiences, ask questions, and help others stay safe online.'
+                title: 'Personalized Dashboard',
+                description: 'Track your learning journey, view achievements, and continue where you left off with a customized experience.'
               },
             ].map((feature, i) => (
               <motion.div

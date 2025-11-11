@@ -78,6 +78,8 @@ export default function Dashboard({ user, setUser, logout }: DashboardProps) {
     // Ensure a positive, greater-than-current max to avoid NaN/Infinity and negative remaining
     safeNextLevelXP = currentXP + 500
   }
+  // Ensure total modules reflects all 6 available modules
+  const displayTotalModules = Math.max(Number(stats?.totalModules) || 0, 6)
 
   return (
     <>
@@ -105,6 +107,32 @@ export default function Dashboard({ user, setUser, logout }: DashboardProps) {
             </p>
           </motion.div>
 
+          {/* Resume Learning */}
+          {modules?.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-8"
+            >
+              {(() => {
+                const inProgress = modules.find((m: any) => m.progress?.status) || modules[0]
+                return (
+                  <div className="rounded-2xl bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-xl p-6 flex items-center justify-between">
+                    <div>
+                      <div className="text-sm uppercase tracking-wide opacity-90">Resume Learning</div>
+                      <h3 className="text-2xl font-bold">{inProgress.title}</h3>
+                      <p className="text-white/90 text-sm mt-1">Continue where you left off and keep your streak alive.</p>
+                    </div>
+                    <a href={`/modules/${inProgress.slug}`} className="px-5 py-2 rounded-lg bg-white/20 hover:bg-white/30 transition-colors font-semibold">
+                      Continue →
+                    </a>
+                  </div>
+                )
+              })()}
+            </motion.div>
+          )}
+
+
           {/* Stats Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <ProgressCard
@@ -126,7 +154,7 @@ export default function Dashboard({ user, setUser, logout }: DashboardProps) {
             <ProgressCard
               title="Modules Completed"
               value={stats.completedModules}
-              max={stats.totalModules}
+              max={displayTotalModules}
               icon={<FaBook />}
               color="text-green-500"
             />
@@ -169,22 +197,35 @@ export default function Dashboard({ user, setUser, logout }: DashboardProps) {
 
           {/* Learning Path removed as requested */}
 
-          {/* Quick Stats */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="rounded-2xl bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-white shadow-xl p-6"
-          >
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="text-2xl font-bold mb-2">Keep Going! 🚀</h3>
-                <p className="text-white/90">
-                  You're {stats.nextLevelXP - user.xp} XP away from Level {user.level + 1}
-                </p>
+          {/* Tip of the Day + Quick Stats */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="rounded-2xl bg-white border border-gray-200 shadow p-6 lg:col-span-2"
+            >
+              <h3 className="text-xl font-bold text-gray-800 mb-2">💡 Tip of the Day</h3>
+              <p className="text-gray-700">
+                Enable 2FA on your email first. If an attacker gets your inbox, they can reset passwords for nearly every account you own.
+              </p>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="rounded-2xl bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-white shadow-xl p-6"
+            >
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-2xl font-bold mb-2">Keep Going! 🚀</h3>
+                  <p className="text-white/90">
+                    You're {safeNextLevelXP - currentXP} XP away from Level {user.level + 1}
+                  </p>
+                </div>
+                <FaChartLine className="text-6xl opacity-60" />
               </div>
-              <FaChartLine className="text-6xl opacity-60" />
-            </div>
-          </motion.div>
+            </motion.div>
+          </div>
         </main>
       </div>
     </>

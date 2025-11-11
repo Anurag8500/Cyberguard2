@@ -1,6 +1,7 @@
+import React from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { FaShieldAlt, FaTrophy, FaUser, FaCog, FaSignOutAlt, FaSearch, FaExclamationTriangle, FaGamepad, FaBook } from 'react-icons/fa'
+import { FaShieldAlt, FaUser, FaCog, FaSignOutAlt, FaSearch, FaExclamationTriangle, FaGamepad, FaBook } from 'react-icons/fa'
 
 interface NavbarProps {
   user: any
@@ -37,58 +38,50 @@ export default function Navbar({ user, logout }: NavbarProps) {
           </Link>
 
           {/* Navigation Links */}
-          <div className="hidden md:flex items-center space-x-8">
+          <div className="hidden md:flex items-center gap-2">
             <Link 
               href="/dashboard" 
-              className={`hover:text-cyber-blue transition-colors ${router.pathname === '/dashboard' ? 'text-cyber-blue' : ''}`}
+              className={`px-3 py-1.5 rounded-lg hover:bg-white/10 transition-colors ${router.pathname === '/dashboard' ? 'text-cyber-blue bg-white/10' : ''}`}
             >
-              Dashboard
+              {"📊\uFE0E"} Dashboard
             </Link>
             <Link 
               href="/modules" 
-              className={`hover:text-cyber-blue transition-colors ${router.pathname.startsWith('/modules') ? 'text-cyber-blue' : ''}`}
+              className={`px-3 py-1.5 rounded-lg hover:bg-white/10 transition-colors ${router.pathname.startsWith('/modules') ? 'text-cyber-blue bg-white/10' : ''}`}
             >
               <FaBook className="inline mr-1" />
               Modules
             </Link>
             <Link 
-              href="/inspect-zone" 
-              className={`hover:text-cyber-blue transition-colors ${router.pathname === '/inspect-zone' ? 'text-cyber-blue' : ''}`}
-            >
-              <FaSearch className="inline mr-1" />
-              Inspect Zone
-            </Link>
-            <Link 
-              href="/cybersos" 
-              className={`hover:text-cyber-blue transition-colors ${router.pathname === '/cybersos' ? 'text-cyber-blue' : ''}`}
-            >
-              <FaExclamationTriangle className="inline mr-1" />
-              CyberSOS
-            </Link>
-            <Link 
               href="/simulation-zone" 
-              className={`hover:text-cyber-blue transition-colors ${router.pathname === '/simulation-zone' ? 'text-cyber-blue' : ''}`}
+              className={`px-3 py-1.5 rounded-lg hover:bg-white/10 transition-colors ${router.pathname === '/simulation-zone' ? 'text-cyber-blue bg-white/10' : ''}`}
             >
               <FaGamepad className="inline mr-1" />
               Simulation Zone
             </Link>
             <Link 
               href="/cyberpedia" 
-              className={`hover:text-cyber-blue transition-colors ${router.pathname === '/cyberpedia' ? 'text-cyber-blue' : ''}`}
+              className={`px-3 py-1.5 rounded-lg hover:bg-white/10 transition-colors ${router.pathname === '/cyberpedia' ? 'text-cyber-blue bg-white/10' : ''}`}
             >
-              <FaBook className="inline mr-1" />
-              CyberPedia
+              {"🛡\uFE0E"} CyberPedia
             </Link>
             <Link 
-              href="/leaderboard" 
-              className={`hover:text-cyber-blue transition-colors ${router.pathname === '/leaderboard' ? 'text-cyber-blue' : ''}`}
+              href="/inspect-zone" 
+              className={`px-3 py-1.5 rounded-lg hover:bg-white/10 transition-colors ${router.pathname === '/inspect-zone' ? 'text-cyber-blue bg-white/10' : ''}`}
             >
-              <FaTrophy className="inline mr-1" />
-              Leaderboard
+              <FaSearch className="inline mr-1" />
+              Inspect Zone
+            </Link>
+            <Link 
+              href="/cybersos" 
+              className={`px-3 py-1.5 rounded-lg hover:bg-white/10 transition-colors ${router.pathname === '/cybersos' ? 'text-cyber-blue bg-white/10' : ''}`}
+            >
+              <FaExclamationTriangle className="inline mr-1" />
+              CyberSOS
             </Link>
             <Link 
               href="/profile" 
-              className={`hover:text-cyber-blue transition-colors ${router.pathname === '/profile' ? 'text-cyber-blue' : ''}`}
+              className={`px-3 py-1.5 rounded-lg hover:bg-white/10 transition-colors ${router.pathname === '/profile' ? 'text-cyber-blue bg-white/10' : ''}`}
             >
               <FaUser className="inline mr-1" />
               Profile

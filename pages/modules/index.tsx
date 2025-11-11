@@ -40,6 +40,7 @@ const modulesList = [
     icon: FaShieldAlt,
     gradient: 'from-orange-500 to-amber-500',
     bgGradient: 'from-orange-50 to-amber-50',
+    locked: true,
   },
   {
     id: 5,
@@ -58,14 +59,15 @@ const modulesList = [
     icon: FaLock,
     gradient: 'from-sky-500 to-violet-500',
     bgGradient: 'from-sky-50 to-violet-50',
+    locked: true,
   },
 ];
 
 export default function ModulesIndex() {
   const router = useRouter();
 
-  const handleModuleClick = (slug: string, title: string) => {
-    // Route to module detail
+  const handleModuleClick = (slug: string, title: string, locked?: boolean) => {
+    if (locked) return;
     router.push(`/modules/${slug}`);
   };
 
@@ -110,7 +112,7 @@ export default function ModulesIndex() {
             transition={{ delay: 0.3 }}
             className="text-2xl font-bold text-gray-700"
           >
-            Learn by doing — 6 bite-sized adventures to level up your skills.
+            Structured lessons to turn knowledge into your strongest firewall.
           </motion.p>
         </motion.div>
 
@@ -129,16 +131,16 @@ export default function ModulesIndex() {
               transition={{ delay: 0.5 + index * 0.1 }}
               whileHover={{ scale: 1.05, y: -10 }}
               whileTap={{ scale: 0.95 }}
-              onClick={() => handleModuleClick(mod.slug, mod.title)}
-              className="cursor-pointer"
+              onClick={() => handleModuleClick(mod.slug, mod.title, (mod as any).locked)}
+              className={`cursor-pointer ${(mod as any).locked ? 'pointer-events-none opacity-60' : ''}`}
             >
-              <div className={`bg-gradient-to-br ${mod.bgGradient} rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden border-2 border-gray-200 hover:border-gray-300`}>
+              <div className={`relative bg-gradient-to-br ${mod.bgGradient} rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden border-2 border-gray-200 hover:border-gray-300`}>
                 {/* Icon */}
                 <div className={`bg-gradient-to-r ${mod.gradient} p-6 flex justify-center items-center`}>
                   <mod.icon className="text-6xl text-white" />
                 </div>
                 {/* Content */}
-                <div className="p-6">
+                <div className="p-6 flex flex-col justify-between h-48">
                   <h3 className="text-2xl font-bold text-gray-800 mb-3">
                     {mod.id}. {mod.title}
                   </h3>
@@ -149,9 +151,16 @@ export default function ModulesIndex() {
                 {/* CTA */}
                 <div className={`bg-gradient-to-r ${mod.gradient} px-6 py-3 text-center`}>
                   <span className="text-white font-bold text-lg">
-                    Start Module →
+                    {(mod as any).locked ? 'Locked' : 'Start Module →'}
                   </span>
                 </div>
+                {(mod as any).locked && (
+                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="absolute inset-0 bg-black/40 backdrop-blur-[2px] flex items-center justify-center">
+                    <motion.div animate={{ scale: [1, 1.06, 1], opacity: [0.95, 1, 0.95] }} transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }} className="flex items-center gap-2 text-white font-semibold bg-white/10 px-4 py-2 rounded-full border border-white/30">
+                      <FaLock className="text-white" /> Locked
+                    </motion.div>
+                  </motion.div>
+                )}
               </div>
             </motion.div>
           ))}

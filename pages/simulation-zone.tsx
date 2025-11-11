@@ -28,6 +28,7 @@ const games = [
     icon: FaNetworkWired,
     gradient: 'from-indigo-500 to-purple-500',
     bgGradient: 'from-indigo-50 to-purple-50',
+    locked: true,
   },
   {
     id: 4,
@@ -36,6 +37,7 @@ const games = [
     icon: FaSearch,
     gradient: 'from-red-500 to-orange-500',
     bgGradient: 'from-red-50 to-orange-50',
+    locked: true,
   },
   {
     id: 5,
@@ -44,14 +46,16 @@ const games = [
     icon: FaNetworkWired,
     gradient: 'from-green-500 to-emerald-500',
     bgGradient: 'from-green-50 to-emerald-50',
+    locked: true,
   },
   {
     id: 6,
-    title: 'Protocol 404',
+    title: 'Project ZeroCode',
     description: 'Debug systems, find the ghost hacker.',
     icon: FaBug,
     gradient: 'from-yellow-500 to-orange-500',
     bgGradient: 'from-yellow-50 to-orange-50',
+    locked: true,
   },
 ];
 
@@ -137,14 +141,14 @@ export default function SimulationZone() {
               whileHover={{ scale: 1.05, y: -10 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => handleGameClick(game.id, game.title)}
-              className="cursor-pointer"
+              className={`cursor-pointer ${game.locked ? 'pointer-events-none opacity-60' : ''}`}
             >
-              <div className={`bg-gradient-to-br ${game.bgGradient} rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden border-2 border-gray-200 hover:border-gray-300`}>
+              <div className={`relative bg-gradient-to-br ${game.bgGradient} rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden border-2 border-gray-200 hover:border-gray-300`}>
                 <div className={`bg-gradient-to-r ${game.gradient} p-6 flex justify-center items-center`}>
                   <game.icon className="text-6xl text-white" />
                 </div>
                 
-                <div className="p-6">
+                <div className="p-6 flex flex-col justify-between h-48">
                   <h3 className="text-2xl font-bold text-gray-800 mb-3">
                     {game.id}. {game.title}
                   </h3>
@@ -155,9 +159,16 @@ export default function SimulationZone() {
                 
                 <div className={`bg-gradient-to-r ${game.gradient} px-6 py-3 text-center`}>
                   <span className="text-white font-bold text-lg">
-                    Launch Mission →
+                    {game.locked ? 'Locked' : 'Launch Mission →'}
                   </span>
                 </div>
+                {game.locked && (
+                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="absolute inset-0 bg-black/40 backdrop-blur-[2px] flex items-center justify-center">
+                    <motion.div animate={{ scale: [1, 1.06, 1], opacity: [0.95, 1, 0.95] }} transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }} className="flex items-center gap-2 text-white font-semibold bg-white/10 px-4 py-2 rounded-full border border-white/30">
+                      <FaLock className="text-white" /> Locked
+                    </motion.div>
+                  </motion.div>
+                )}
               </div>
             </motion.div>
           ))}

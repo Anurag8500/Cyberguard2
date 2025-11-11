@@ -1,8 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { FaBook, FaShieldAlt, FaQuestionCircle } from 'react-icons/fa';
 import { useRouter } from 'next/router';
 import Navbar from '../components/Navbar';
+
+interface CyberPediaProps {
+  user: any
+  setUser: (user: any) => void
+  logout: () => void
+}
 
 const sections = [
   {
@@ -34,18 +40,33 @@ const sections = [
   }
 ];
 
-export default function CyberPedia() {
+export default function CyberPedia({ user, setUser, logout }: CyberPediaProps) {
   const router = useRouter();
   const [leaving, setLeaving] = useState(false);
+
+  useEffect(() => {
+    // Redirect if not logged in
+    const token = localStorage.getItem('token')
+    const userData = localStorage.getItem('user')
+
+    if (!token || !userData) {
+      router.push('/auth/login')
+      return
+    }
+
+    if (!user) {
+      setUser(JSON.parse(userData))
+    }
+  }, [])
 
   const handleSectionClick = (route: string) => {
     // Route to specific sections
     if (route === '/cyberpedia/glossary') {
       router.push('/cyberpedia/glossary');
     } else if (route === '/cyberpedia/faqs') {
-      // Smooth exit animation before navigating to static FAQs page
+      // Smooth exit animation before navigating to FAQs page
       setLeaving(true);
-      setTimeout(() => router.push('/faq.html'), 280);
+      setTimeout(() => router.push('/cyberpedia/faqs'), 280);
     } else if (route === '/cyberpedia/safety-tips') {
       // Smooth exit animation before navigating to Safety Tips page
       setLeaving(true);
@@ -63,7 +84,7 @@ export default function CyberPedia() {
       animate={{ opacity: leaving ? 0 : 1 }}
       transition={{ duration: 0.25 }}
     >
-      <Navbar />
+      <Navbar user={user} logout={logout} />
       
       <main className="container mx-auto px-6 py-12">
         {/* Hero Header */}

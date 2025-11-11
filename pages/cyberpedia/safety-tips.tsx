@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
-import { FaMoneyBillWave, FaBriefcase, FaHeart, FaUserSecret, FaGamepad, FaShoppingCart, FaHeadset, FaArrowUp, FaExternalLinkAlt } from 'react-icons/fa';
+import { FaMoneyBillWave, FaBriefcase, FaHeart, FaUserSecret, FaGamepad, FaShoppingCart, FaHeadset, FaArrowUp, FaExternalLinkAlt, FaArrowLeft } from 'react-icons/fa';
+import { useRouter } from 'next/router';
 import Navbar from '../../components/Navbar';
 
 interface Section {
@@ -134,6 +135,7 @@ const sections: Section[] = [
 ];
 
 export default function SafetyTipsPage() {
+  const router = useRouter();
   const [progress, setProgress] = useState(0);
   const containerRef = useRef<HTMLDivElement | null>(null);
 
@@ -154,6 +156,10 @@ export default function SafetyTipsPage() {
   const cardVariants = {
     hidden: { opacity: 0, y: 16 },
     show: (i: number) => ({ opacity: 1, y: 0, transition: { delay: i * 0.05, duration: 0.35 } }),
+  };
+
+  const handleBackToCyberpedia = () => {
+    router.push('/cyberpedia');
   };
 
   return (
@@ -178,6 +184,13 @@ export default function SafetyTipsPage() {
           className="max-w-5xl mx-auto mb-10"
           id="top"
         >
+          <button
+            onClick={handleBackToCyberpedia}
+            className="flex items-center space-x-2 text-gray-700 hover:text-blue-600 mb-6 transition-colors"
+          >
+            <FaArrowLeft />
+            <span className="font-semibold">Back to Cyberpedia</span>
+          </button>
           <h1 className="text-4xl md:text-5xl font-extrabold mb-3">
             <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">Cyber Safety Tips</span>
           </h1>

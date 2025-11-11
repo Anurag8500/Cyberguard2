@@ -1,8 +1,14 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { FaGamepad, FaLock, FaUserSecret, FaNetworkWired, FaSearch, FaBug } from 'react-icons/fa';
 import { useRouter } from 'next/router';
 import Navbar from '../components/Navbar';
+
+interface SimulationZoneProps {
+  user: any
+  setUser: (user: any) => void
+  logout: () => void
+}
 
 const games = [
   {
@@ -59,8 +65,23 @@ const games = [
   },
 ];
 
-export default function SimulationZone() {
+export default function SimulationZone({ user, setUser, logout }: SimulationZoneProps) {
   const router = useRouter();
+
+  useEffect(() => {
+    // Redirect if not logged in
+    const token = localStorage.getItem('token')
+    const userData = localStorage.getItem('user')
+
+    if (!token || !userData) {
+      router.push('/auth/login')
+      return
+    }
+
+    if (!user) {
+      setUser(JSON.parse(userData))
+    }
+  }, [])
   
   const handleGameClick = (gameId: number, gameTitle: string) => {
     // Route to specific game pages
@@ -76,7 +97,7 @@ export default function SimulationZone() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100">
-      <Navbar />
+      <Navbar user={user} logout={logout} />
       
       <main className="container mx-auto px-6 py-12">
         {/* Hero Header */}
@@ -152,7 +173,7 @@ export default function SimulationZone() {
                   <h3 className="text-2xl font-bold text-gray-800 mb-3">
                     {game.id}. {game.title}
                   </h3>
-                  <p className="text-gray-600 text-lg font-medium">
+                  <p className="text-gray-600 text-lg font-medium leading-tight">
                     {game.description}
                   </p>
                 </div>

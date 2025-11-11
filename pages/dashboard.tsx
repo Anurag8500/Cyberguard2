@@ -115,7 +115,11 @@ export default function Dashboard({ user, setUser, logout }: DashboardProps) {
               className="mb-8"
             >
               {(() => {
-                const inProgress = modules.find((m: any) => m.progress?.status) || modules[0]
+                // Find the most recently accessed module with progress, or first unlocked module
+                const inProgress = modules.find((m: any) => m.progress?.status === 'IN_PROGRESS') || 
+                                 modules.find((m: any) => m.progress?.status) || 
+                                 modules.find((m: any) => !m.isLocked) || 
+                                 modules[0]
                 return (
                   <div className="rounded-2xl bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-xl p-6 flex items-center justify-between">
                     <div>

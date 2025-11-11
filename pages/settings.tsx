@@ -2,6 +2,9 @@ import { useEffect, useState } from 'react'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import { motion } from 'framer-motion'
+import { useTranslation } from 'next-i18next'
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
+import { changeLanguage } from '@/lib/i18n'
 import Navbar from '@/components/Navbar'
 
 interface SettingsProps {
@@ -11,6 +14,7 @@ interface SettingsProps {
 }
 
 export default function Settings({ user, setUser, logout }: SettingsProps) {
+  const { t } = useTranslation('common')
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState('')
@@ -45,9 +49,16 @@ export default function Settings({ user, setUser, logout }: SettingsProps) {
   }, [user])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target
+    
+    // Change language immediately when language preference changes
+    if (name === 'preferredLanguage') {
+      changeLanguage(value)
+    }
+    
     setSettings({
       ...settings,
-      [e.target.name]: e.target.value,
+      [name]: value,
     })
   }
 
@@ -78,7 +89,7 @@ export default function Settings({ user, setUser, logout }: SettingsProps) {
       localStorage.setItem('user', JSON.stringify(data.user))
       setUser(data.user)
       
-      setSuccess('Settings updated successfully!')
+      setSuccess(t('settings.settingsUpdated'))
       
       // Reload page if language changed
       if (settings.preferredLanguage !== user.preferredLanguage) {
@@ -105,7 +116,7 @@ export default function Settings({ user, setUser, logout }: SettingsProps) {
   return (
     <>
       <Head>
-        <title>Settings - CyberGuard Academy</title>
+        <title>{t('settings.title')} - CyberGuard Academy</title>
       </Head>
 
       <div className="min-h-screen bg-gray-50">
@@ -117,7 +128,7 @@ export default function Settings({ user, setUser, logout }: SettingsProps) {
             animate={{ opacity: 1, y: 0 }}
             className="mb-6"
           >
-            <h1 className="text-4xl font-bold text-gray-800 mb-2">Settings</h1>
+            <h1 className="text-4xl font-bold text-gray-800 mb-2">{t('settings.title')}</h1>
             <p className="text-gray-600">Manage your account preferences</p>
           </motion.div>
 
@@ -141,11 +152,11 @@ export default function Settings({ user, setUser, logout }: SettingsProps) {
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Profile Information */}
               <div>
-                <h2 className="text-xl font-bold text-gray-800 mb-4">Profile Information</h2>
+                <h2 className="text-xl font-bold text-gray-800 mb-4">{t('settings.profileInformation')}</h2>
                 
                 <div className="mb-4">
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Full Name
+                    {t('settings.fullName')}
                   </label>
                   <input
                     type="text"
@@ -159,7 +170,7 @@ export default function Settings({ user, setUser, logout }: SettingsProps) {
 
                 <div className="mb-4">
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Email
+                    {t('settings.email')}
                   </label>
                   <input
                     type="email"
@@ -167,12 +178,12 @@ export default function Settings({ user, setUser, logout }: SettingsProps) {
                     className="input-field bg-gray-100"
                     disabled
                   />
-                  <p className="text-xs text-gray-500 mt-1">Email cannot be changed</p>
+                  <p className="text-xs text-gray-500 mt-1">{t('settings.emailCannotChange')}</p>
                 </div>
 
                 <div className="mb-4">
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Role
+                    {t('settings.role')}
                   </label>
                   <input
                     type="text"
@@ -185,11 +196,11 @@ export default function Settings({ user, setUser, logout }: SettingsProps) {
 
               {/* Language Preferences */}
               <div className="border-t border-gray-200 pt-6">
-                <h2 className="text-xl font-bold text-gray-800 mb-4">Language Preferences</h2>
+                <h2 className="text-xl font-bold text-gray-800 mb-4">{t('settings.languagePreferences')}</h2>
                 
                 <div className="mb-4">
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Preferred Language
+                    {t('settings.preferredLanguage')}
                   </label>
                   <select
                     name="preferredLanguage"
@@ -202,8 +213,8 @@ export default function Settings({ user, setUser, logout }: SettingsProps) {
                     <option value="bn">বাংলা (Bengali)</option>
                   </select>
                   <p className="text-xs text-gray-500 mt-1">
-                    The page will reload when you change the language
-                  </p>
+                      {t('settings.pageReload')}
+                    </p>
                 </div>
               </div>
 
@@ -240,7 +251,7 @@ export default function Settings({ user, setUser, logout }: SettingsProps) {
                   disabled={loading}
                   className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {loading ? 'Saving...' : 'Save Changes'}
+                  {loading ? t('settings.saving') : t('settings.saveChanges')}
                 </button>
               </div>
             </form>
@@ -249,4 +260,12 @@ export default function Settings({ user, setUser, logout }: SettingsProps) {
       </div>
     </>
   )
+}
+
+export async function getStaticProps({ locale }: { locale: string }) {
+  return {
+    props: {
+      ...(await serverSideTranslations(locale, ['common'])),
+    },
+  }
 }

@@ -911,6 +911,10 @@ export default function CyberGlossary() {
     setSelectedTerm(null);
   };
 
+  const handleBackToCyberpedia = () => {
+    router.push('/cyberpedia');
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100">
       <Navbar />
@@ -920,19 +924,28 @@ export default function CyberGlossary() {
         <motion.div
           initial={{ opacity: 0, y: -30 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-12"
+          className="mb-12"
         >
-          <h1 className="text-5xl md:text-6xl font-extrabold mb-4">
-            <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
-              📖 Cyber Glossary
-            </span>
-          </h1>
-          <p className="text-2xl font-bold text-gray-700">
-            "Decode cybersecurity — one term at a time."
-          </p>
-          <p className="text-lg text-gray-600 mt-4 max-w-3xl mx-auto">
-            Understand, not memorize — every term comes with meaning, example, defense tip, and related words.
-          </p>
+          <button
+            onClick={handleBackToCyberpedia}
+            className="flex items-center space-x-2 text-gray-700 hover:text-blue-600 mb-6 transition-colors"
+          >
+            <FaArrowLeft />
+            <span className="font-semibold">Back to Cyberpedia</span>
+          </button>
+          <div className="text-center">
+            <h1 className="text-5xl md:text-6xl font-extrabold mb-4">
+              <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+                📖 Cyber Glossary
+              </span>
+            </h1>
+            <p className="text-2xl font-bold text-gray-700">
+              "Decode cybersecurity — one term at a time."
+            </p>
+            <p className="text-lg text-gray-600 mt-4 max-w-3xl mx-auto">
+              Understand, not memorize — every term comes with meaning, example, defense tip, and related words.
+            </p>
+          </div>
         </motion.div>
 
         {/* Main Content */}

@@ -1,8 +1,14 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { FaCubes, FaKey, FaUserSecret, FaUserShield, FaShieldAlt, FaSearch, FaLock } from 'react-icons/fa';
 import { useRouter } from 'next/router';
 import Navbar from '../../components/Navbar';
+
+interface ModulesIndexProps {
+  user: any
+  setUser: (user: any) => void
+  logout: () => void
+}
 
 const modulesList = [
   {
@@ -31,6 +37,7 @@ const modulesList = [
     icon: FaUserShield,
     gradient: 'from-indigo-500 to-purple-500',
     bgGradient: 'from-indigo-50 to-purple-50',
+    locked: true,
   },
   {
     id: 4,
@@ -50,6 +57,7 @@ const modulesList = [
     icon: FaSearch,
     gradient: 'from-rose-500 to-pink-500',
     bgGradient: 'from-rose-50 to-pink-50',
+    locked: true,
   },
   {
     id: 6,
@@ -63,8 +71,23 @@ const modulesList = [
   },
 ];
 
-export default function ModulesIndex() {
+export default function ModulesIndex({ user, setUser, logout }: ModulesIndexProps) {
   const router = useRouter();
+
+  useEffect(() => {
+    // Redirect if not logged in
+    const token = localStorage.getItem('token')
+    const userData = localStorage.getItem('user')
+
+    if (!token || !userData) {
+      router.push('/auth/login')
+      return
+    }
+
+    if (!user) {
+      setUser(JSON.parse(userData))
+    }
+  }, [])
 
   const handleModuleClick = (slug: string, title: string, locked?: boolean) => {
     if (locked) return;
@@ -73,7 +96,7 @@ export default function ModulesIndex() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100">
-      <Navbar />
+      <Navbar user={user} logout={logout} />
 
       <main className="container mx-auto px-6 py-12">
         {/* Hero Header */}
@@ -144,7 +167,7 @@ export default function ModulesIndex() {
                   <h3 className="text-2xl font-bold text-gray-800 mb-3">
                     {mod.id}. {mod.title}
                   </h3>
-                  <p className="text-gray-600 text-lg font-medium">
+                  <p className="text-gray-600 text-lg font-medium leading-tight">
                     {mod.description}
                   </p>
                 </div>

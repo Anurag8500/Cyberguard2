@@ -14,11 +14,11 @@ Interactive, story-driven cybersecurity education with gamified learning, simula
 
 ## **Tech Stack**
 
-- **Framework:** `Next.js` (React + SSR/SSG)
+- **Framework:** `Next.js` (React + Typescript)
 - **Language:** `TypeScript`
-- **Styling:** `Tailwind CSS`
+- **Styling:** `Tailwind CSS with PostCSS and Autoprefixer, Framer Motion (animations), React Icons`
 - **Database & ORM:** `PostgreSQL` + `Prisma`
-- **Authentication:** JWT-based sessions, secure password hashing (`bcrypt`)
+- **Authentication:** Next-auth, JWT-based sessions, secure password hashing (`bcrypt`)
 - **Email / Notifications:** SMTP (via a library such as `nodemailer`)
 - **i18n:** `next-i18next` for translations
 - **Bundler / Tooling:** Vercel-compatible Next.js setup, `npm` scripts
@@ -157,3 +157,4 @@ This project is licensed under the MIT License. See the `LICENSE` file for detai
 - **Email:** support@cyberguard.academy
 
 Thank you for contributing to CyberGuard Academy — together we make the internet safer.
+

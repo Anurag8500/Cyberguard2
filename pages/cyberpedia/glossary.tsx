@@ -859,10 +859,11 @@ const zones: Zone[] = [
   }
 ];
 
-export default function CyberGlossary() {
+export default function Glossary() {
   const router = useRouter();
   const [selectedZone, setSelectedZone] = useState<Zone | null>(null);
   const [selectedTerm, setSelectedTerm] = useState<Term | null>(null);
+  const [query, setQuery] = useState<string>('');
 
   const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
 
@@ -874,6 +875,7 @@ export default function CyberGlossary() {
     }
     return null;
   };
+
 
   useEffect(() => {
     if (!router.isReady) return;
@@ -945,12 +947,121 @@ export default function CyberGlossary() {
             <p className="text-lg text-gray-600 mt-4 max-w-3xl mx-auto">
               Understand, not memorize — every term comes with meaning, example, defense tip, and related words.
             </p>
+            <div className="mt-8 max-w-2xl mx-auto">
+              <input
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Search terms, meanings, or related words..."
+                className="w-full px-5 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all shadow-sm"
+                type="text"
+              />
+            </div>
           </div>
         </motion.div>
 
         {/* Main Content */}
         <AnimatePresence mode="wait">
-          {!selectedZone ? (
+          {!selectedTerm && query.trim() ? (
+            <motion.div
+              key="search"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="max-w-5xl mx-auto"
+            >
+              <div className="mb-6 flex items-center justify-between">
+                <h2 className="text-2xl font-bold text-gray-800">Search results</h2>
+                <button
+                  onClick={() => setQuery('')}
+                  className="text-sm font-semibold text-gray-600 hover:text-blue-600"
+                >
+                  Clear
+                </button>
+              </div>
+              <div className="space-y-4">
+                {(() => {
+                  const escapeRegExp = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                  const normalize = (s: string) => (s || '')
+                    .toLowerCase()
+                    .normalize('NFKD')
+                    .replace(/[\u0300-\u036f]/g, '')
+                    .replace(/[^a-z0-9\s]/g, ' ')
+                    .replace(/\s+/g, ' ')
+                    .trim();
+                  const rawQ = query.trim();
+                  const q = normalize(rawQ);
+                  const qTokens = q.split(' ').filter(Boolean);
+
+                  const candidates = zones.flatMap(z => z.terms.map(t => ({ z, t })));
+
+                  // Matcher: for very short queries (<=2), use word boundaries; otherwise use substring on normalized fields
+                  const shortQuery = q.length <= 2;
+                  const wb = shortQuery ? new RegExp(`\\b${escapeRegExp(q)}\\b`, 'i') : null;
+
+                  const matchesPrimary = ({ t }: { t: Term }) => {
+                    const fields = [t.name, t.title || ''];
+                    if (shortQuery) return fields.some(f => wb!.test(f || ''));
+                    const nf = fields.map(normalize);
+                    return qTokens.every(tok => nf.some(f => f.includes(tok)));
+                  };
+
+                  const matchesSecondary = ({ t }: { t: Term }) => {
+                    const words = (t.relatedWords || []);
+                    if (shortQuery) return words.some(w => wb!.test(w || ''));
+                    const nf = words.map(normalize);
+                    return qTokens.every(tok => nf.some(f => f.includes(tok)));
+                  };
+
+                  let primary = candidates.filter(item => matchesPrimary(item));
+                  let secondary = candidates.filter(item => matchesSecondary(item));
+
+                  // De-duplicate while preserving order
+                  const seen = new Set<string>();
+                  const dedup = (arr: { z: Zone; t: Term }[]) => arr.filter(({ z, t }) => {
+                    const key = `${z.id}-${t.name}`;
+                    if (seen.has(key)) return false;
+                    seen.add(key);
+                    return true;
+                  });
+
+                  primary = dedup(primary);
+                  secondary = dedup(secondary);
+
+                  const results = primary.length > 0 ? primary : secondary;
+                  if (results.length === 0) {
+                    return (
+                      <div className="text-gray-600 bg-white border border-gray-200 rounded-xl p-6 text-center">
+                        No terms found for "{query}".
+                      </div>
+                    );
+                  }
+                  return results.map(({ z, t }, index) => (
+                    <motion.div
+                      key={`${z.id}-${t.name}`}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: Math.min(index, 10) * 0.03 }}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => {
+                        setSelectedZone(z);
+                        setSelectedTerm(t);
+                      }}
+                      className="cursor-pointer bg-white rounded-xl shadow-lg hover:shadow-xl transition-all p-6 border-2 border-gray-200 hover:border-blue-400"
+                    >
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h3 className="text-2xl font-bold text-gray-800">{t.name}</h3>
+                          <p className="text-sm text-gray-500 mt-1">{z.title}</p>
+                        </div>
+                        <span className="text-blue-600 font-semibold">Open →</span>
+                      </div>
+                    </motion.div>
+                  ));
+                })()}
+              </div>
+            </motion.div>
+          ) : !selectedZone ? (
             // Zones Grid
             <motion.div
               key="zones"
@@ -1176,4 +1287,4 @@ export default function CyberGlossary() {
       </main>
     </div>
   );
-}
+};

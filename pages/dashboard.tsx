@@ -108,18 +108,16 @@ export default function Dashboard({ user, setUser, logout }: DashboardProps) {
           </motion.div>
 
           {/* Resume Learning */}
-          {modules?.length > 0 && (
+          {modules?.some((m: any) => m.progress?.status) && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               className="mb-8"
             >
               {(() => {
-                // Find the most recently accessed module with progress, or first unlocked module
-                const inProgress = modules.find((m: any) => m.progress?.status === 'IN_PROGRESS') || 
-                                 modules.find((m: any) => m.progress?.status) || 
-                                 modules.find((m: any) => !m.isLocked) || 
-                                 modules[0]
+                // Find a module that has actual progress to resume
+                const inProgress = modules.find((m: any) => m.progress?.status === 'IN_PROGRESS') ||
+                                  modules.find((m: any) => m.progress?.status)
                 return (
                   <div className="rounded-2xl bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-xl p-6 flex items-center justify-between">
                     <div>
